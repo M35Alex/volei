@@ -401,6 +401,7 @@ function showToast(message,correct){
 }
 // Relative odds: common questions = 1; the two easier cases = 0.5.
 const questionWeights={standard:1,setterAtSet:0.5,liberoAtAttack:0.5};
+const situationWeights={receive:40,defense:30,attack:20,set:10};
 function buildQuestions(){
  const questions=[];
  for(let rotation=0;rotation<6;rotation++)for(const situation of ['receive','set','attack','defense'])for(let n=1;n<=6;n++){
@@ -417,7 +418,10 @@ function buildQuestions(){
 }
 function pickQuestion(){
  if(!training.questions.length)training.questions=buildQuestions();
- const choices=training.questions.filter(q=>q.key!==training.lastKey),total=choices.reduce((sum,q)=>sum+q.weight,0);
+ // Pick the phase first, so easier-player penalties do not alter phase odds.
+ let phaseDraw=Math.random()*100,situation='set';
+ for(const [name,weight] of Object.entries(situationWeights)){phaseDraw-=weight;if(phaseDraw<0){situation=name;break}}
+ const choices=training.questions.filter(q=>q.situation===situation&&q.key!==training.lastKey),total=choices.reduce((sum,q)=>sum+q.weight,0);
  let draw=Math.random()*total;
  for(const q of choices){draw-=q.weight;if(draw<0)return q}
  return choices[choices.length-1];
