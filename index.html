@@ -444,8 +444,8 @@ function renderQuiz(){
   marker.setAttribute('aria-label',p.name+', poziția de rotație '+n);marker.setAttribute('aria-hidden',String(n===q.n?!training.submitted:training.hints<2));grid.append(marker);
  }
  const pin=document.createElement('button');pin.type='button';pin.id='answer-marker';pin.setAttribute('aria-describedby','quiz-question');grid.append(pin);updateAnswerPin();
- document.getElementById('quiz-question').textContent=q.situation==='defense'?'Unde stă '+target.id+' când suntem atacați spre zona '+q.game.defenseTarget+'?':'Unde stă '+target.id+' la '+({receive:'preluare',set:'ridicare',attack:'atac'}[q.phase])+'?';
- addMeta(document.getElementById('quiz-meta'),[target.name,'Rotația '+(q.rotation+1)+'/6','Poziție de rotație '+q.n,isFront(q.n)?'Linia întâi':'Linia a doua',q.situation==='defense'?'Apărare · atac advers spre zona '+q.game.defenseTarget:q.phase==='receive'?'Preluarea serviciului':'Atacul nostru · '+phaseLabels[q.phase]]);
+ document.getElementById('quiz-question').textContent='Unde stă '+target.id+' '+(q.situation==='defense'?'la atacul adversarilor spre zona '+q.game.defenseTarget:({receive:'la preluarea serviciului',set:'la ridicare',attack:'la atacul nostru'}[q.phase]))+'?';
+ addMeta(document.getElementById('quiz-meta'),[target.name,'Rotația '+(q.rotation+1)+'/6']);
  document.getElementById('quiz-submit').disabled=!training.touched||training.submitted;updateHintButton();
  document.getElementById('quiz-score').textContent=training.correct+' / '+training.total+' corecte';
 }
