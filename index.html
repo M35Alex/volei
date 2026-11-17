@@ -110,13 +110,12 @@ button:focus-visible{outline:3px solid #a8e4ff;outline-offset:3px}
 .player-dialog{width:min(460px,calc(100% - 24px));max-height:85dvh;overflow:auto;background:var(--panel);color:var(--ink);border:1px solid #55708e;border-radius:20px;padding:22px;box-shadow:0 24px 80px #0008}
 .player-dialog::backdrop{background:#050c19b8;backdrop-filter:blur(3px)}
 .dialog-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}.dialog-heading h2{font-size:23px;margin:0}.close-dialog{min-width:42px;padding:5px;font-size:23px;line-height:1}
-.dialog-meta,.quiz-meta{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}.dialog-meta span,.quiz-meta span{padding:5px 9px;border-radius:7px;background:#0c182b;color:#c5ddf3;font-size:12px}
+.dialog-meta{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}.dialog-meta span{padding:5px 9px;border-radius:7px;background:#0c182b;color:#c5ddf3;font-size:12px}
 #player-duty{font-size:12px;color:var(--accent);font-weight:800;letter-spacing:.04em}
 #player-explanation{line-height:1.7;margin-bottom:0}
 .learn-view{max-width:850px;margin:0 auto}.quiz-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.quiz-heading h2{font-size:23px;margin:0}.quiz-score{font-size:12px;color:var(--accent);white-space:nowrap}
 .quiz-prompt,.quiz-result{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
 #quiz-question{font-size:clamp(20px,3.5vw,28px);line-height:1.25;margin:0}.quiz-help{font-size:12px;color:var(--muted);margin:8px 0 0}
-.quiz-meta{margin-bottom:0}
 .quiz-court-shell{padding:8px;background:#101a2b;border:1px solid #394963;border-radius:15px}
 .quiz-court{background:#287e83;border-radius:0 0 9px 9px;border-top:0}
 .quiz-grid{height:420px;touch-action:pan-y;outline-offset:4px}
@@ -134,7 +133,7 @@ button:focus-visible{outline:3px solid #a8e4ff;outline-offset:3px}
 @media(max-width:650px){
  .topbar{align-items:stretch;flex-direction:column;gap:10px;margin-bottom:12px}.topbar h1{font-size:21px}.view-switch{align-self:flex-start;padding:3px}.view-switch button{min-height:36px;padding:7px 15px;font-size:12px}
  .player-dialog{padding:17px;border-radius:17px}.dialog-heading h2{font-size:21px}
- .quiz-heading h2{font-size:20px}.quiz-prompt,.quiz-result{padding:12px}.quiz-meta span{font-size:10px;padding:5px 7px}
+ .quiz-heading h2{font-size:20px}.quiz-prompt,.quiz-result{padding:12px}
  .quiz-grid{height:clamp(300px,80vw,380px)}.quiz-keyboard{display:none}
  .feedback-toast{font-size:13px;padding:12px 14px}.quiz-score{font-size:11px}
 }
@@ -180,7 +179,7 @@ button:focus-visible{outline:3px solid #a8e4ff;outline-offset:3px}
 </section>
 <section id="learn-view" class="learn-view" hidden aria-labelledby="learn-title">
 <div class="quiz-heading"><h2 id="learn-title">Unde trebuie să stai?</h2><span id="quiz-score" class="quiz-score" aria-live="polite">0 / 0 corecte</span></div>
-<div class="quiz-prompt"><h3 id="quiz-question"></h3><p class="quiz-help">Trage jucătorul în locul lui pentru faza cerută, apoi apasă Trimite. O mică abatere este acceptată.</p><div class="quiz-meta" id="quiz-meta"></div></div>
+<div class="quiz-prompt"><h3 id="quiz-question"></h3><p class="quiz-help">Trage jucătorul în locul lui pentru faza cerută, apoi apasă Trimite. O mică abatere este acceptată.</p></div>
 <div class="quiz-court-shell"><div class="net"><span>FILEU</span></div><div class="court quiz-court"><div id="quiz-grid" class="court-grid quiz-grid" tabindex="0" role="group" aria-label="Trage jucătorul în poziție. Poți folosi și săgețile și Enter."></div></div></div>
 <p class="quiz-keyboard">Poți folosi săgețile pentru a muta marcajul și Enter pentru a trimite.</p>
 <div class="quiz-actions"><button type="button" id="quiz-hint">Hint 1 · Poziția la serviciu</button><button type="button" class="primary" id="quiz-submit" disabled>Trimite</button><button type="button" id="quiz-next">Alt exercițiu</button></div>
@@ -444,8 +443,7 @@ function renderQuiz(){
   marker.setAttribute('aria-label',p.name+', poziția de rotație '+n);marker.setAttribute('aria-hidden',String(n===q.n?!training.submitted:training.hints<2));grid.append(marker);
  }
  const pin=document.createElement('button');pin.type='button';pin.id='answer-marker';pin.setAttribute('aria-describedby','quiz-question');grid.append(pin);updateAnswerPin();
- document.getElementById('quiz-question').textContent='Unde stă '+target.id+' '+(q.situation==='defense'?'la atacul adversarilor spre zona '+q.game.defenseTarget:({receive:'la preluarea serviciului',set:'la ridicare',attack:'la atacul nostru'}[q.phase]))+'?';
- addMeta(document.getElementById('quiz-meta'),[target.name,'Rotația '+(q.rotation+1)+'/6']);
+ document.getElementById('quiz-question').textContent='În rotația '+(q.rotation+1)+'/6, unde stă '+target.id+' '+(q.situation==='defense'?'la atacul adversarilor spre zona '+q.game.defenseTarget:({receive:'la preluarea serviciului',set:'la ridicare',attack:'la atacul nostru'}[q.phase]))+'?';
  document.getElementById('quiz-submit').disabled=!training.touched||training.submitted;updateHintButton();
  document.getElementById('quiz-score').textContent=training.correct+' / '+training.total+' corecte';
 }
