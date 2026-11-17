@@ -344,7 +344,7 @@ function rotate(team){const key=team==='ours'?'oursRotation':'theirsRotation';st
 function score(winner){const scoreKey=winner==='ours'?'oursScore':'theirsScore';state[scoreKey]++;if(winner!==state.server){const key=winner==='ours'?'oursRotation':'theirsRotation';state[key]=(state[key]+1)%6;state.server=winner;state.lastEvent=(winner==='ours'?'Am câștigat':'Adversarii au câștigat')+' serviciul și au rotit.'}else{state.lastEvent=(winner==='ours'?'Am câștigat':'Adversarii au câștigat')+' punctul. Fără rotație.'}state.phase='before';render()}
 const phaseLabels={before:'La serviciu',receive:'Preluare / apărare',set:'Ridicare',attack:'Atac'};
 let currentView='simulator',toastTimer,activeDrag=null;
-const training={question:null,picked:null,submitted:false,touched:false,hints:0,total:0,correct:0,deck:[],lastKey:''};
+const training={question:null,picked:null,submitted:false,touched:false,hints:0,total:0,correct:0,questions:[],lastKey:''};
 function playerExplanation(p,n,game,team='ours'){
  const front=isFront(n),receiving=game.server!==team;
  let text='';
@@ -399,32 +399,49 @@ function hideToast(){clearTimeout(toastTimer);document.getElementById('feedback-
 function showToast(message,correct){
  hideToast();const toast=document.getElementById('feedback-toast');toast.textContent=message;toast.className='feedback-toast'+(correct?'':' incorrect');toast.hidden=false;toastTimer=setTimeout(hideToast,4500);
 }
-function newQuestion(){
- if(!training.deck.length){
-  for(let rotation=0;rotation<6;rotation++)for(const phase of ['receive','set','attack'])for(let n=1;n<=6;n++)training.deck.push({rotation,phase,n,key:rotation+'/'+phase+'/'+n});
-  for(let i=training.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[training.deck[i],training.deck[j]]=[training.deck[j],training.deck[i]]}
-  if(training.deck[0].key===training.lastKey)[training.deck[0],training.deck[1]]=[training.deck[1],training.deck[0]];
+// Relative odds: common questions = 1; the two easier cases = 0.5.
+const questionWeights={standard:1,setterAtSet:0.5,liberoAtAttack:0.5};
+function buildQuestions(){
+ const questions=[];
+ for(let rotation=0;rotation<6;rotation++)for(const situation of ['receive','set','attack','defense'])for(let n=1;n<=6;n++){
+  const defense=situation==='defense',phase=defense?'attack':situation;
+  // Split defense's weight among three directions so it counts as one phase.
+  for(const defenseTarget of defense?[5,6,1]:[6]){
+   const game={oursRotation:rotation,theirsRotation:0,server:defense?'ours':'theirs',phase,defenseTarget};
+   const player=shownPlayer(lineup(rotation)[n],n,'ours',game);
+   const weight=situation==='set'&&player.type==='setter'?questionWeights.setterAtSet:situation==='attack'&&player.type==='libero'?questionWeights.liberoAtAttack:questionWeights.standard;
+   questions.push({rotation,situation,phase,n,game,weight:weight/(defense?3:1),key:rotation+'/'+situation+'/'+n+(defense?'/'+defenseTarget:'')});
+  }
  }
- const next=training.deck.shift();training.lastKey=next.key;
- const game={oursRotation:next.rotation,theirsRotation:0,server:'theirs',phase:next.phase,defenseTarget:6};
- stopDrag();training.question={...next,game};training.picked={x:50,y:50};training.submitted=false;training.touched=false;training.hints=0;
+ return questions;
+}
+function pickQuestion(){
+ if(!training.questions.length)training.questions=buildQuestions();
+ const choices=training.questions.filter(q=>q.key!==training.lastKey),total=choices.reduce((sum,q)=>sum+q.weight,0);
+ let draw=Math.random()*total;
+ for(const q of choices){draw-=q.weight;if(draw<0)return q}
+ return choices[choices.length-1];
+}
+function newQuestion(){
+ const next=pickQuestion();training.lastKey=next.key;
+ stopDrag();training.question=next;training.picked={x:50,y:50};training.submitted=false;training.touched=false;training.hints=0;
  document.getElementById('quiz-result').hidden=true;hideToast();renderQuiz();
 }
 function renderQuiz(){
  const q=training.question;if(!q)return;
- const grid=document.getElementById('quiz-grid'),slots=lineup(q.rotation),target=shownPlayer(slots[q.n],q.n,'ours',q.game);
+ const grid=document.getElementById('quiz-grid'),slots=lineup(q.rotation),target=shownPlayer(slots[q.n],q.n,'ours',q.game),receiving=q.game.server!=='ours';
  grid.replaceChildren();grid.classList.toggle('revealed',training.submitted);grid.classList.toggle('hinted',training.hints>=2);grid.dataset.hints=training.hints;grid.dataset.question=q.key;grid.dataset.target=slots[q.n].id;
  const zones=document.createElement('div');zones.className='court-zones';zones.setAttribute('aria-hidden','true');
  for(const n of [4,3,2,5,6,1]){const label=document.createElement('span');label.textContent='ZONA '+n;zones.append(label)}grid.append(zones);
  for(let n=1;n<=6;n++){
   const p=shownPlayer(slots[n],n,'ours',q.game),marker=document.createElement('div');marker.className='player-marker'+(n===q.n?' question-target':'');marker.dataset.rotation=n;marker.dataset.player=slots[n].id;
-  const [x,y]=placement(p,n,true,'ours',q.game);marker.style.left=x+'%';marker.style.top=y+'%';
-  for(const [cls,text] of [['player '+p.type,p.id],['playername',p.name],['rotation-tag','Rotație '+n],['task',roleTask(p,n,true,'ours',q.game)]]){const span=document.createElement('span');span.className=cls;span.textContent=text;marker.append(span)}
+  const [x,y]=placement(p,n,receiving,'ours',q.game);marker.style.left=x+'%';marker.style.top=y+'%';
+  for(const [cls,text] of [['player '+p.type,p.id],['playername',p.name],['rotation-tag','Rotație '+n],['task',roleTask(p,n,receiving,'ours',q.game)]]){const span=document.createElement('span');span.className=cls;span.textContent=text;marker.append(span)}
   marker.setAttribute('aria-label',p.name+', poziția de rotație '+n);marker.setAttribute('aria-hidden',String(n===q.n?!training.submitted:training.hints<2));grid.append(marker);
  }
  const pin=document.createElement('button');pin.type='button';pin.id='answer-marker';pin.setAttribute('aria-describedby','quiz-question');grid.append(pin);updateAnswerPin();
- document.getElementById('quiz-question').textContent='Unde stă '+target.id+' la '+({receive:'preluare',set:'ridicare',attack:'atac'}[q.phase])+'?';
- addMeta(document.getElementById('quiz-meta'),[target.name,'Rotația '+(q.rotation+1)+'/6','Poziție de rotație '+q.n,isFront(q.n)?'Linia întâi':'Linia a doua']);
+ document.getElementById('quiz-question').textContent=q.situation==='defense'?'Unde stă '+target.id+' când suntem atacați spre zona '+q.game.defenseTarget+'?':'Unde stă '+target.id+' la '+({receive:'preluare',set:'ridicare',attack:'atac'}[q.phase])+'?';
+ addMeta(document.getElementById('quiz-meta'),[target.name,'Rotația '+(q.rotation+1)+'/6','Poziție de rotație '+q.n,isFront(q.n)?'Linia întâi':'Linia a doua',q.situation==='defense'?'Apărare · atac advers spre zona '+q.game.defenseTarget:q.phase==='receive'?'Preluarea serviciului':'Atacul nostru · '+phaseLabels[q.phase]]);
  document.getElementById('quiz-submit').disabled=!training.touched||training.submitted;updateHintButton();
  document.getElementById('quiz-score').textContent=training.correct+' / '+training.total+' corecte';
 }
