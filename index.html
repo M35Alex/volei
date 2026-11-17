@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulator volei — două terenuri</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1323;--panel:#152238;--panel2:#1a2a43;--line:#304361;--ink:#eef5ff;--muted:#a5b5cf;--accent:#7ed4ff;--green:#89f0ba;--yellow:#ffd88a;--pink:#ffb2bb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#233854 0%,var(--bg) 65%);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+.shell{max-width:1240px;margin:0 auto;padding:24px 18px 50px}h1{font-size:clamp(23px,3.2vw,36px);letter-spacing:-.04em;margin:0 0 6px}h2{font-size:16px;margin:0 0 12px}.sub{color:var(--muted);margin:0 0 20px}.controls,.summary,.information{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:18px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.control-label{display:block;color:#b4c4db;font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px}.buttons{display:flex;gap:8px;flex-wrap:wrap}button{cursor:pointer;border:1px solid #47607b;color:var(--ink);background:#223754;border-radius:10px;padding:10px 13px;font:inherit;font-size:13px;font-weight:700;transition:background .15s,transform .15s}button:hover{background:#315071}button:active{transform:scale(.98)}button[aria-pressed="true"]{background:#d6efff;color:#17273b;border-color:#d6efff}button.primary{background:#3a9ed6;color:white;border-color:#69caff}button.primary:hover{background:#268cbd}button.warning{background:#5e3f47}button:focus-visible{outline:3px solid #a8e4ff;outline-offset:3px}
+.actions{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:5px;border-top:1px solid var(--line)}.label-bubble{background:#263c56;border:1px solid #45647f;color:#cae7fa;border-radius:999px;padding:7px 11px;font-weight:750;font-size:13px}
+.courts{max-width:800px;margin:0 auto;background:#101a2b;border:1px solid #394963;border-radius:20px;padding:18px;box-shadow:0 18px 48px #0003}.court{border:2px solid #b3dcf4;border-radius:10px;background:#226f8b;box-shadow:inset 0 0 0 7px #ffffff10;overflow:hidden}.court.opponent{background:#42688f}.court.ours{background:#287e83}.court-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 13px;background:#0003;font-size:13px;font-weight:800}.court-heading span:last-child{font-size:12px;font-weight:650;color:#e0eefb}.court-grid{padding:16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;min-height:254px;position:relative}.court-grid:after{content:"";position:absolute;top:50%;left:0;right:0;border-top:2px dashed #fff5;pointer-events:none}.zone{z-index:1;min-height:100px;border:1px solid #d1f2ff71;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:#06203442;text-align:center;padding:8px 4px;position:relative}.zone.active{outline:3px solid #fff6c8;background:#ffe29536}.zone .number{position:absolute;top:5px;left:8px;font-size:11px;color:#e8f6ffb8;font-weight:800}.player{width:43px;height:43px;border-radius:50%;border:2px solid #ffffff7c;display:grid;place-items:center;color:#12223a;font-weight:900;font-size:12px;box-shadow:0 2px 7px #0017}.player.setter{background:#c2e0ff}.player.middle{background:#aaf1c2}.player.outside{background:#ffe0a0}.player.opposite{background:#ffb7c2}.player.libero{background:#e7c6ff}.playername{font-size:12px;font-weight:800;max-width:100%;overflow-wrap:anywhere}.task{font-size:11px;font-weight:800;color:#fff0ba;min-height:15px}.net{height:22px;position:relative;display:grid;place-items:center;color:#071829;font-size:10px;font-weight:900;letter-spacing:.3em;background:repeating-linear-gradient(90deg,#e9f6ff 0 8px,#9fb2c5 8px 10px);border-block:3px solid #f2f8ff;z-index:2}.net span{background:#edf6ffed;padding:1px 10px;border-radius:3px}.summary{max-width:800px;margin:16px auto 0}.event{font-size:16px;font-weight:800;margin:0 0 8px}.explain{margin:0;color:#d6e4f5}.legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px}.legend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#d6e4f5}.dot{display:inline-block;width:12px;height:12px;border-radius:50%}.scoreline{display:flex;justify-content:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}.information{max-width:800px;margin:16px auto 0;background:#121f32}.information p{color:#bbccdf;margin:8px 0}.information strong{color:#ecf5ff}.tiny{font-size:12px;color:#a9b9d0;margin:14px 2px 0}.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(min-width:1000px){.controls{grid-template-columns:1fr 1fr}.court-grid{min-height:256px}}
+@media(max-width:650px){.shell{padding:15px 10px 30px}.controls{grid-template-columns:1fr;padding:13px}.actions{grid-column:1}.courts{padding:9px}.court-grid{padding:7px;gap:6px;min-height:220px}.zone{min-height:95px;padding:6px 2px}.player{width:37px;height:37px}.playername{font-size:10px}.task{font-size:10px}.summary{padding:14px}button{padding:9px 11px}}
+/* Player markers move independently of the fixed court zones. */
+.court-grid{display:block;height:360px;min-height:0;padding:0;isolation:isolate;overflow:visible}
+.court-grid:after{top:33.333%;z-index:0}
+.court-zones{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);pointer-events:none;opacity:.45}
+.court-zones span{border:1px solid #e5f6ff28;padding:7px;font-size:10px;font-weight:800;color:#e8f6ff}
+.court.opponent .court-grid:after{top:66.667%}
+.court.opponent .court-zones{grid-template-rows:2fr 1fr}
+.court.ours .court-zones{grid-template-rows:1fr 2fr}
+.player-marker{position:absolute;z-index:2;transform:translate(-50%,-50%);width:94px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;transition:left .7s ease,top .7s ease;pointer-events:none}
+.player-marker .player{width:42px;height:42px;flex:none}
+.player-marker.active .player{outline:3px solid #fff0a5;outline-offset:3px}
+.player-marker .playername{font-size:11px;line-height:1.15;text-shadow:0 1px 3px #001}
+.player-marker .task{font-size:9px;line-height:1.2;min-height:11px;text-shadow:0 1px 3px #001}
+.rotation-tag{font-size:9px;line-height:1.2;color:#e3eefb;background:#10273cbf;border-radius:4px;padding:1px 4px}
+@media(max-width:650px){.court-grid{height:330px;min-height:0;padding:0}.player-marker{width:76px}.player-marker .player{width:34px;height:34px;font-size:10px}.player-marker .playername{font-size:9px}.player-marker .task{font-size:8px}.rotation-tag{font-size:8px}}
+@media(prefers-reduced-motion:reduce){.player-marker{transition:none}}
+.plan-control{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}.plan-control[hidden]{display:none}.plan-note{margin:8px 0 0;color:var(--muted);font-size:12px}
+.courts{max-width:1100px;display:grid;grid-template-columns:minmax(0,1fr)240px;column-gap:16px}
+.court.opponent{grid-column:1;grid-row:1}.court.ours{grid-column:1;grid-row:3}.net{grid-column:1;grid-row:2}
+.moves{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;min-width:0;align-self:stretch}
+.moves.theirs{grid-column:2;grid-row:1}.moves.ours{grid-column:2;grid-row:3}
+.moves h2{margin-bottom:6px}.moves p{font-size:12px;color:var(--muted);margin:0 0 12px}.moves ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}.moves li{padding:7px 9px;border-radius:8px;background:#0b132366;font-size:13px}.moves li.changed{border-left:3px solid var(--accent)}.moves strong{color:var(--accent)}.moves small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+@media(max-width:800px){.courts{display:flex;flex-direction:column;gap:0}.moves{margin:10px 0;padding:12px}.moves ul{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.moves p{margin-bottom:8px}.net{flex:none;min-height:22px}}
+.phase-control{min-width:0}#phase-buttons{flex-wrap:nowrap;overflow-x:auto;padding:3px;max-width:100%}#phase-buttons button{flex:0 0 auto;white-space:nowrap}.plan-note[hidden]{display:none}
+@media(min-width:1000px){.controls{grid-template-columns:max-content minmax(0,1fr)}}
+@media(max-width:999px){.controls{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<main class="shell">
+<h1>🏐 Rotația la volei — ambele terenuri</h1>
+<p class="sub">Alege cine servește, urmărește fazele și acordă puncte. Zonele 1–6 rămân fixe; cercurile se deplasează în funcție de faza jocului.</p>
+<section class="controls" aria-label="Controale simulator">
+<div><span class="control-label">Cine servește?</span><div class="buttons"><button id="serve-ours" type="button">Echipa noastră</button><button id="serve-theirs" type="button">Adversarii</button></div></div>
+<div class="phase-control"><span class="control-label">Momentul jocului</span><div class="buttons" id="phase-buttons"><button type="button" data-phase="before" title="Așezarea la lovirea serviciului">1. La serviciu</button><button type="button" data-phase="receive" title="După lovirea serviciului: preluare / apărare">2. Preluare / apărare</button><button type="button" data-phase="set">3. Ridicare</button><button type="button" data-phase="attack">4. Atac</button></div></div>
+<div class="plan-control" id="plan-control" hidden><span class="control-label" id="plan-label">Preluare cu OH1 în rotație 2</span><div class="buttons" role="group" aria-labelledby="plan-label"><button type="button" data-plan="A" aria-pressed="true">Plan A · OH1 atacă în 2</button><button type="button" data-plan="B" aria-pressed="false">Plan B · OH1 atacă în 4</button></div></div>
+<div class="plan-control" id="defense-control" hidden><span class="control-label" id="defense-label">Direcția atacului · terenul care apără</span><div class="buttons" role="group" aria-labelledby="defense-label"><button type="button" data-defense-target="5" aria-pressed="false">Atac spre zona 5</button><button type="button" data-defense-target="6" aria-pressed="true">Atac spre zona 6</button><button type="button" data-defense-target="1" aria-pressed="false">Atac spre zona 1</button></div><p class="plan-note" id="defense-note"></p></div>
+<div class="actions"><button type="button" class="primary" id="point-ours">+ Punct pentru noi</button><button type="button" class="primary" id="point-theirs">+ Punct pentru adversari</button><button type="button" id="rotate-ours">↻ Rotim echipa noastră</button><button type="button" id="rotate-theirs">↻ Rotim adversarii</button><button type="button" id="reset">Resetează</button></div>
+</section>
+<div class="scoreline" aria-live="polite"><span class="label-bubble" id="score">Noi 0 — 0 Adversari</span><span class="label-bubble" id="rotations">Rotația noastră 1/6 · adversarii 1/6</span></div>
+<section class="courts" aria-label="Terenurile de volei">
+<div class="court opponent"><div class="court-heading"><span>🔴 TERENUL ADVERSARILOR</span><span id="opponent-status">Preluare</span></div><div class="court-grid" id="opponent-grid"></div></div>
+<aside class="moves theirs" aria-labelledby="moves-theirs-title" aria-live="polite"><h2 id="moves-theirs-title">Mișcări · Adversarii</h2><p>Din poziția de rotație în zona ocupată acum.</p><ul id="moves-theirs"></ul></aside>
+<div class="net"><span>FILEU</span></div>
+<div class="court ours"><div class="court-grid" id="our-grid"></div><div class="court-heading"><span>🔵 TERENUL NOSTRU</span><span id="our-status">Serviciu</span></div></div>
+<aside class="moves ours" aria-labelledby="moves-ours-title" aria-live="polite"><h2 id="moves-ours-title">Mișcări · Echipa noastră</h2><p>Din poziția de rotație în zona ocupată acum.</p><ul id="moves-ours"></ul></aside>
+</section>
+<section class="summary" aria-live="polite"><p class="event" id="event">Echipa noastră servește.</p><p class="explain" id="explain"></p><div class="legend"><span><i class="dot" style="background:#c2e0ff"></i>Ridicător (R)</span><span><i class="dot" style="background:#aaf1c2"></i>Centru (C)</span><span><i class="dot" style="background:#ffe0a0"></i>Outside hitter (OH)</span><span><i class="dot" style="background:#ffb7c2"></i>Fals / opus (F)</span><span><i class="dot" style="background:#e7c6ff"></i>Libero (L)</span></div></section>
+<section class="information"><h2>Regulile pe scurt</h2><p><strong>Rotație:</strong> 1 → 6 → 5 → 4 → 3 → 2 → 1. Se face doar când câștigi dreptul de a servi.</p><p><strong>La punct:</strong> dacă echipa care preia câștigă, ea rotește și începe să servească. Dacă echipa care servește câștigă, nimeni nu rotește.</p><p><strong>După serviciu:</strong> jucătorii își pot schimba locurile, respectând regulile de atac și blocaj pentru linia din spate. Rolurile lor rămân aceleași.</p><p><strong>Libero:</strong> în această demonstrație, înlocuiește unul dintre centri în linia din spate, dar nu servește. La o rotație în care un centru trebuie să servească, centrul este afișat la serviciu.</p><p><strong>Cercurile:</strong> se deplasează la schimbarea fazei. Eticheta „Rotație” indică poziția din ordinea de rotație, chiar dacă jucătorul se mută fizic în altă zonă. Linia punctată marchează linia de 3 metri. Stânga și dreapta se citesc din perspectiva fiecărei echipe privind spre fileu; la adversari desenul este oglindit.</p><p><strong>Important:</strong> pozițiile de preluare și atac afișate după serviciu sunt o schemă tactică simplificată. Nu reprezintă singura așezare posibilă. Ambele echipe folosesc sistemul 5–1.</p></section>
+<p class="tiny">Scheme de preluare: <a href="https://www.athleteinstitute.ca/blog/5-1-volleyball-rotation-how-it-works" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Athlete Institute · toate cele șase rotații</a> · <a href="https://rotationsvolleyball.es/en/serve-receive/1/" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Exemplu de tranziție · OH1 spre 4</a></p>
+<p class="tiny">Simulator educațional independent · Funcționează fără internet · Interfață adaptată telefonului și calculatorului</p>
+</main>
+<script>
+(()=>{'use strict';
+const roster=[{id:'R',name:'Ridicător',type:'setter'},{id:'OH1',name:'Outside 1',type:'outside'},{id:'C1',name:'Centru 1',type:'middle'},{id:'F',name:'Fals',type:'opposite'},{id:'OH2',name:'Outside 2',type:'outside'},{id:'C2',name:'Centru 2',type:'middle'}];
+const libero={id:'L',name:'Libero',type:'libero'};
+const cycle=[1,6,5,4,3,2];
+let state={oursRotation:0,theirsRotation:0,server:'ours',phase:'before',oursScore:0,theirsScore:0,receivePlan:'A',defenseTarget:6,lastEvent:''};
+function lineup(rotation){const slots={};for(let i=0;i<6;i++)slots[cycle[(cycle.indexOf(i+1)+rotation)%6]]=roster[i];return slots}
+function isFront(n){return [2,3,4].includes(n)}
+function canChoosePlan(team){return state.server!==team&&lineup(state[team==='ours'?'oursRotation':'theirsRotation'])[2].id==='OH1'}
+function usesPlanA(team){return state.receivePlan==='A'&&canChoosePlan(team)}
+// Coordinates are relative to each team's view: x left-to-right, y net-to-end-line.
+const basePositions={4:[17,20],3:[50,20],2:[83,20],5:[17,74],6:[50,74],1:[83,74]};
+// Three-passer reception shapes adapted from Athlete Institute's six-rotation
+// coaching sheet; centre names mapped to this roster's unchanged serving order.
+// https://www.athleteinstitute.ca/blog/5-1-volleyball-rotation-how-it-works
+// Plan A in rotation 1 uses OH2 / L / OH1. Plan B is the user's selected
+// left-stack variant: OH1 / OH2 / L, using the legal left-stack structure
+// illustrated in rotation 4 of the same coaching sheet (with roles remapped).
+// Keys always mean original ROTATION positions, not current physical zones.
+// x4 < x3 < x2; x5 < x6 < x1; y4 < y5; y3 < y6; y2 < y1.
+// Larger y means farther from the net. Coordinates are schematic percentages.
+const receivePositions=[
+ {4:[17,25],3:[47,14],2:[83,64],5:[18,72],6:[47,74],1:[87,88]},
+ {4:[18,64],3:[60,13],2:[87,18],5:[48,72],6:[65,42],1:[86,72]},
+ {4:[14,16],3:[30,62],2:[83,18],5:[14,40],6:[55,76],1:[86,72]},
+ {4:[12,12],3:[22,34],2:[32,60],5:[50,78],6:[78,65],1:[87,88]},
+ {4:[18,64],3:[60,15],2:[87,18],5:[48,72],6:[65,88],1:[86,70]},
+ {4:[14,16],3:[30,62],2:[80,18],5:[15,88],6:[55,76],1:[86,70]}
+];
+const planBReceivePositions={4:[12,12],3:[22,34],2:[32,60],5:[50,78],6:[78,65],1:[87,88]};
+function receptionPositions(team){
+ const rotation=state[team==='ours'?'oursRotation':'theirsRotation'];
+ return state.receivePlan==='B'&&canChoosePlan(team)?planBReceivePositions:receivePositions[rotation];
+}
+function shownPlayer(p,rotationZone,team){
+ const servingMiddle=rotationZone===1&&state.server===team;
+ return p.type==='middle'&&!isFront(rotationZone)&&!servingMiddle?libero:p;
+}
+function placement(p,rotationZone,receiving,team){
+ const front=isFront(rotationZone);
+ if(state.phase==='before')return basePositions[rotationZone];
+ if(receiving&&state.phase==='receive'){
+  return receptionPositions(team)[rotationZone];
+ }
+ // Plan A preserves the right-side OH1 approach and the opposite on the left.
+ if(usesPlanA(team)){
+  if(p.id==='OH1')return [88,30];
+  if(p.type==='opposite')return [15,30];
+ }
+ // Chosen defensive base: 5 and 1 level, back-row outside deeper than both.
+ if(!receiving){
+  if(front)return [p.type==='outside'?17:p.type==='middle'?50:83,17];
+  if(p.type==='outside'){
+   const target=state.phase==='set'||state.phase==='attack'?state.defenseTarget:6;
+   return [target===5?24:target===1?76:50,88];
+  }
+  return [p.type==='libero'||p.type==='middle'?19:83,63];
+ }
+ // In possession, even a back-row setter moves towards the net to set.
+ if(p.type==='setter')return [72,19];
+ if(front)return [p.type==='outside'?15:p.type==='middle'?43:88,32];
+ if(p.type==='opposite')return [84,63];
+ if(p.type==='outside')return [50,88];
+ return [19,63];
+}
+function roleTask(p,rotationZone,receiving,team){
+ const front=isFront(rotationZone);
+ if(state.phase==='before')return rotationZone===1&&state.server===team?'🏐 SERVEȘTE':receiving&&['outside','libero'].includes(p.type)?'PRELUARE':'';
+ if(!receiving)return front?(state.phase==='receive'?'PREGĂTEȘTE BLOCAJ':'BLOCAJ'):p.type==='outside'?'APĂRARE ADÂNCĂ':'APĂRARE';
+ if(state.phase==='receive')return ['outside','libero'].includes(p.type)?'PRELUARE':p.type==='setter'?(canChoosePlan(team)?'ÎN SPATELE OH1':'PREGĂTEȘTE RIDICAREA'):'PREGĂTIRE ATAC';
+ if(state.phase==='set')return p.type==='setter'?'RIDICĂ':p.type==='libero'?'ACOPERIRE':'PREGĂTIRE ATAC';
+ if(p.type==='setter')return 'ACOPERIRE';
+ if(front)return 'ATAC';
+ return p.type==='opposite'?'ATAC DIN SPATE':'ACOPERIRE';
+}
+function physicalZone(x,y){return (y<100/3?[4,3,2]:[5,6,1])[Math.min(2,Math.floor(x/(100/3)))]}
+function markerZone(x,y,marker,grid,team){
+ // CSS centres the whole marker (circle + labels), not just the circle.
+ // Use its label offset to report the circle's destination even while moving.
+ const box=marker.getBoundingClientRect(),circle=marker.querySelector('.player').getBoundingClientRect();
+ const offset=(circle.top+circle.height/2-box.top-box.height/2)/grid.getBoundingClientRect().height*100;
+ return physicalZone(x,y+(team==='theirs'?-offset:offset));
+}
+function renderMovements(slots,team){
+ const list=document.getElementById('moves-'+team),receiving=state.server!==team,grid=document.getElementById(team==='ours'?'our-grid':'opponent-grid');
+ list.replaceChildren();
+ for(const original of roster){
+  const n=Number(Object.keys(slots).find(n=>slots[n].id===original.id));
+  const p=shownPlayer(original,n,team),[x,y]=placement(p,n,receiving,team),marker=grid.querySelector('[data-player="'+original.id+'"]'),zone=markerZone(x,y,marker,grid,team);
+  const row=document.createElement('li'),name=document.createElement('strong'),route=document.createElement('span'),note=document.createElement('small');
+  name.textContent=(p.id==='L'?'L ('+original.id+')':p.id)+': ';
+  const arranged=state.phase!=='before';
+  route.textContent=arranged?'Z'+n+' → Z'+zone:'Z'+n;
+  row.className=arranged&&n!==zone?'changed':'';
+  note.textContent=state.phase==='before'?'Poziție de rotație':roleTask(p,n,receiving,team)+(n===zone?' · aceeași zonă':'');
+  row.append(name);row.append(route);row.append(note);list.append(row);
+ }
+}
+function renderCourt(id,order,rotation,team){
+ const el=document.getElementById(id),slots=lineup(rotation),receiving=state.server!==team;
+ if(!el.querySelector('.court-zones')){
+  const zones=document.createElement('div');zones.className='court-zones';zones.setAttribute('aria-hidden','true');
+  for(const n of order){const z=document.createElement('span');z.textContent='ZONA '+n;zones.append(z)}
+  el.append(zones);
+ }
+ for(let n=1;n<=6;n++){
+  const original=slots[n],p=shownPlayer(original,n,team),task=roleTask(p,n,receiving,team);
+  // Keep the same DOM marker across phases so CSS can animate its movement.
+  let marker=el.querySelector('[data-player="'+original.id+'"]');
+  if(!marker){
+   marker=document.createElement('div');marker.dataset.player=original.id;
+   for(const cls of ['player','playername','rotation-tag','task']){
+    const span=document.createElement('span');span.className=cls;marker.append(span);
+   }
+   el.append(marker);
+  }
+  marker.className='player-marker'+(/SERVEȘTE|PRELUARE|RIDICĂ|^ATAC/.test(task)?' active':'');
+  marker.setAttribute('aria-label',p.name+', poziția de rotație '+n+', '+task);
+  const circle=marker.querySelector('.player');circle.className='player '+p.type;circle.textContent=p.id;
+  marker.querySelector('.playername').textContent=p.name;
+  marker.querySelector('.rotation-tag').textContent='Rotație '+n;
+  marker.querySelector('.task').textContent=task;
+  let [x,y]=placement(p,n,receiving,team);
+  if(team==='theirs'){x=100-x;y=100-y}
+  marker.style.left=x+'%';marker.style.top=y+'%';
+ }
+ renderMovements(slots,team);
+}
+function render(){const oursServing=state.server==='ours';document.getElementById('score').textContent=`Noi ${state.oursScore} — ${state.theirsScore} Adversari`;
+ document.getElementById('rotations').textContent=`Rotația noastră ${state.oursRotation+1}/6 · adversarii ${state.theirsRotation+1}/6`;
+ document.getElementById('our-status').textContent=oursServing?'🏐 SERVIM':'PRELUĂM';document.getElementById('opponent-status').textContent=oursServing?'PREIAU':'🏐 SERVESC';
+ document.getElementById('serve-ours').setAttribute('aria-pressed',String(oursServing));document.getElementById('serve-theirs').setAttribute('aria-pressed',String(!oursServing));
+ document.querySelectorAll('[data-phase]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.phase===state.phase)));
+ const receivingTeam=oursServing?'theirs':'ours',planAvailable=canChoosePlan(receivingTeam),planA=usesPlanA(receivingTeam);
+ document.getElementById('plan-control').hidden=!planAvailable;
+ document.getElementById('plan-label').textContent=(oursServing?'Adversarii':'Echipa noastră')+' · OH1 în poziția de rotație 2';
+ document.querySelectorAll('[data-plan]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.plan===state.receivePlan)));
+ // Opponents are shown in the opposite orientation, with their front row near the net.
+ renderCourt('opponent-grid',[1,6,5,2,3,4],state.theirsRotation,'theirs');
+ renderCourt('our-grid',[4,3,2,5,6,1],state.oursRotation,'ours');
+ let event='',explain='';
+ if(state.phase==='before'){event=(oursServing?'Noi servim.':'Adversarii servesc.');explain='La lovirea serviciului, echipa la primire respectă ordinea laterală 4–3–2 și 5–6–1, iar jucătorii din rotațiile 5, 6 și 1 sunt în spatele coechipierilor din 4, 3 și 2. Pozițiile sunt relative, nu căsuțe obligatorii. Echipa la serviciu are libertate de așezare. Jucătorul din rotația 1 servește din spatele liniei de fund; aici este reprezentat schematic în teren. Selectarea planului A/B păstrează această așezare; deplasările apar la „Preluare / apărare”.'}
+ if(state.phase==='receive'){event=oursServing?'După lovirea serviciului: adversarii preiau, noi apărăm.':'După lovirea serviciului: noi preluăm, adversarii apără.';explain='Preluarea folosește trei culoare pentru cei doi outside hitteri și libero, cu o așezare distinctă în fiecare rotație. Ordinea relativă 4–3–2 / 5–6–1 și perechile față–spate sunt păstrate. Stânga și dreapta sunt ale echipei privind spre fileu; terenul advers este desenat invers. Ridicătorul avansează la „Ridicare”. Centrul care a servit rămâne pe teren.'}
+ if(state.phase==='set'){event=oursServing?'Adversarii construiesc atacul, noi ne apărăm.':'Noi construim atacul, adversarii se apără.';explain='Ridicătorul echipei care a preluat avansează spre fileu pentru a pasa, inclusiv când este jucător de linia a doua. Poziția sa de rotație rămâne aceeași: dacă este în linia a doua, nu poate bloca și are restricții la atac. Cealaltă echipă pregătește blocajul și apărarea.'}
+ if(state.phase==='attack'){event='Se construiește atacul.';explain='Outside hitter-ul este în stânga, centrul în mijloc, iar falsul în dreapta când se află în față. Când ridicătorul este în față, falsul se află în spate. Atacanții sunt opțiuni de pasă: unul singur va lovi mingea. Echipa adversă pregătește blocajul și apărarea. Atacul din spate peste nivelul fileului se execută cu desprindere din spatele liniei de 3 metri.'}
+ if(state.phase==='receive'){
+  const rotation=state[receivingTeam==='ours'?'oursRotation':'theirsRotation'],slots=lineup(rotation),positions=receptionPositions(receivingTeam);
+  const passers=Object.keys(slots).map(n=>({p:shownPlayer(slots[n],Number(n),receivingTeam),x:positions[n][0]})).filter(v=>['outside','libero'].includes(v.p.type)).sort((a,b)=>a.x-b.x);
+  explain+=' Preluători, de la stânga la dreapta spre fileu: '+passers.map(v=>v.p.id).join(' → ')+'.';
+  if(planAvailable&&state.receivePlan==='B')explain+=' În Plan B, OH1 preia în stânga, OH2 în centru și libero-ul în dreapta. Falsul și centrul stau grupați în stânga, în ordinea rotațiilor 4–3–2, iar R rămâne în spatele lui OH1 și la dreapta libero-ului. După preluare, OH1 atacă din 4, falsul din 2.';
+ }
+ if(planAvailable&&state.phase!=='before'){
+  if(planA&&state.phase==='attack')explain='În Plan A, OH1 atacă din zona 2, falsul din zona 4, iar centrul din zona 3. OH1 rămâne jucător de linia întâi, chiar dacă a coborât în zona 1 pentru preluare. Atacanții sunt opțiuni de pasă: unul singur va lovi mingea. Cealaltă echipă pregătește blocajul și apărarea.';
+ }
+ const defensePhase=state.phase==='set'||state.phase==='attack';
+ document.getElementById('defense-control').hidden=!defensePhase;
+ document.getElementById('defense-label').textContent='Direcția atacului · terenul '+(oursServing?'nostru':'adversarilor')+' (apărare)';
+ document.querySelectorAll('[data-defense-target]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.defenseTarget)===state.defenseTarget)));
+ document.getElementById('defense-note').textContent='Zonele sunt ale echipei care apără. OH-ul din spate '+(state.defenseTarget===6?'rămâne adânc în zona 6.':'se deplasează din zona 6 spre zona '+state.defenseTarget+', păstrând adâncimea.')+' Libero-ul în 5 și apărătorul din 1 stau la aceeași adâncime, mai aproape de fileu.';
+ if(defensePhase)explain+=' '+document.getElementById('defense-note').textContent;
+ if(state.lastEvent)event=state.lastEvent+' '+event;
+ document.getElementById('event').textContent=event;document.getElementById('explain').textContent=explain;
+}
+function rotate(team){const key=team==='ours'?'oursRotation':'theirsRotation';state[key]=(state[key]+1)%6;state.phase='before';state.lastEvent=(team==='ours'?'Echipa noastră':'Adversarii')+' a rotit.';render()}
+function score(winner){const scoreKey=winner==='ours'?'oursScore':'theirsScore';state[scoreKey]++;if(winner!==state.server){const key=winner==='ours'?'oursRotation':'theirsRotation';state[key]=(state[key]+1)%6;state.server=winner;state.lastEvent=(winner==='ours'?'Am câștigat':'Adversarii au câștigat')+' serviciul și au rotit.'}else{state.lastEvent=(winner==='ours'?'Am câștigat':'Adversarii au câștigat')+' punctul. Fără rotație.'}state.phase='before';render()}
+document.getElementById('serve-ours').addEventListener('click',()=>{state.server='ours';state.phase='before';state.lastEvent='Serviciul a fost selectat manual.';render()});
+document.getElementById('serve-theirs').addEventListener('click',()=>{state.server='theirs';state.phase='before';state.lastEvent='Serviciul a fost selectat manual.';render()});
+document.querySelectorAll('[data-phase]').forEach(b=>b.addEventListener('click',()=>{state.phase=b.dataset.phase;state.lastEvent='';render()}));
+document.querySelectorAll('[data-plan]').forEach(b=>b.addEventListener('click',()=>{state.receivePlan=b.dataset.plan;state.lastEvent='';render()}));
+document.querySelectorAll('[data-defense-target]').forEach(b=>b.addEventListener('click',()=>{state.defenseTarget=Number(b.dataset.defenseTarget);state.lastEvent='';render()}));
+document.getElementById('point-ours').addEventListener('click',()=>score('ours'));
+document.getElementById('point-theirs').addEventListener('click',()=>score('theirs'));
+document.getElementById('rotate-ours').addEventListener('click',()=>rotate('ours'));
+document.getElementById('rotate-theirs').addEventListener('click',()=>rotate('theirs'));
+document.getElementById('reset').addEventListener('click',()=>{state={oursRotation:0,theirsRotation:0,server:'ours',phase:'before',oursScore:0,theirsScore:0,receivePlan:'A',defenseTarget:6,lastEvent:'Simulator resetat.'};render()});
+render();
+})();
+</script>
+</body>
+</html>
