@@ -90,7 +90,7 @@ button:focus-visible{outline:3px solid #a8e4ff;outline-offset:3px}
  button{min-height:42px;padding:9px 8px;font-size:12px}
  .controls>div:first-child .buttons,.plan-control .buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
  #defense-control .buttons{grid-template-columns:repeat(3,minmax(0,1fr))}
- #defense-control button{font-size:10px;padding-inline:3px}#defense-note{display:none}
+ #defense-control button{font-size:10px;padding-inline:3px}
  #phase-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:0;overflow:visible}
  #phase-buttons button{min-width:0;padding:9px 2px;font-size:10px}
  .desktop-label{display:none}.mobile-label{display:inline}
@@ -116,7 +116,7 @@ button:focus-visible{outline:3px solid #a8e4ff;outline-offset:3px}
 <section class="controls" aria-label="Controale simulator">
 <div><span class="control-label">Cine servește?</span><div class="buttons"><button id="serve-ours" type="button">Echipa noastră</button><button id="serve-theirs" type="button">Adversarii</button></div></div>
 <div class="phase-control"><span class="control-label">Momentul jocului</span><div class="buttons" id="phase-buttons"><button type="button" data-phase="before" title="Așezarea la lovirea serviciului"><span class="desktop-label">1. La serviciu</span><span class="mobile-label">1. Serviciu</span></button><button type="button" data-phase="receive" title="După lovirea serviciului: preluare / apărare"><span class="desktop-label">2. Preluare / apărare</span><span class="mobile-label">2. Preluare</span></button><button type="button" data-phase="set"><span class="desktop-label">3. Ridicare</span><span class="mobile-label">3. Ridicare</span></button><button type="button" data-phase="attack"><span class="desktop-label">4. Atac</span><span class="mobile-label">4. Atac</span></button></div></div>
-<div class="plan-control" id="defense-control" hidden><span class="control-label" id="defense-label">Direcția atacului · terenul care apără</span><div class="buttons" role="group" aria-labelledby="defense-label"><button type="button" data-defense-target="5" aria-pressed="false">Atac spre zona 5</button><button type="button" data-defense-target="6" aria-pressed="true">Atac spre zona 6</button><button type="button" data-defense-target="1" aria-pressed="false">Atac spre zona 1</button></div><p class="plan-note" id="defense-note"></p></div>
+<div class="plan-control" id="defense-control" hidden><span class="control-label" id="defense-label">Direcția atacului · terenul care apără</span><div class="buttons" role="group" aria-labelledby="defense-label"><button type="button" data-defense-target="5" aria-pressed="false">Atac spre zona 5</button><button type="button" data-defense-target="6" aria-pressed="true">Atac spre zona 6</button><button type="button" data-defense-target="1" aria-pressed="false">Atac spre zona 1</button></div></div>
 <div class="actions"><button type="button" class="primary" id="point-ours">+ Punct · Noi</button><button type="button" class="primary" id="point-theirs">+ Punct · Adversari</button><button type="button" id="rotate-ours">↻ Rotație · Noi</button><button type="button" id="rotate-theirs">↻ Rotație · Adversari</button><button type="button" id="reset">Resetează</button></div>
 </section>
 </div>
@@ -279,8 +279,6 @@ function render(){const oursServing=state.server==='ours';document.getElementByI
  document.getElementById('defense-control').hidden=!defensePhase;
  document.getElementById('defense-label').textContent='Direcția atacului · terenul '+(oursServing?'nostru':'adversarilor')+' (apărare)';
  document.querySelectorAll('[data-defense-target]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.defenseTarget)===state.defenseTarget)));
- document.getElementById('defense-note').textContent='Zonele sunt ale echipei care apără. OH-ul din spate '+(state.defenseTarget===6?'rămâne adânc în zona 6.':'se deplasează din zona 6 spre zona '+state.defenseTarget+', păstrând adâncimea.')+' Libero-ul în 5 și apărătorul din 1 stau la aceeași adâncime, mai aproape de fileu.';
- if(defensePhase)explain+=' '+document.getElementById('defense-note').textContent;
  if(state.lastEvent)event=state.lastEvent+' '+event;
  document.getElementById('event').textContent=event;document.getElementById('explain').textContent=explain;
 }
